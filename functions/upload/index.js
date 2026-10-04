@@ -498,9 +498,9 @@ async function uploadFileToTelegram(context, fullId, metadata, fileExt, fileName
 
     // 选择对应的发送接口
     const fileTypeMap = {
-        'image/': { 'url': 'sendPhoto', 'type': 'photo' },
-        'video/': { 'url': 'sendVideo', 'type': 'video' },
-        'audio/': { 'url': 'sendAudio', 'type': 'audio' },
+        'image/': { 'url': 'sendDocument', 'type': 'document' },
+        'video/': { 'url': 'sendDocument', 'type': 'document' },
+        'audio/': { 'url': 'sendDocument', 'type': 'document' },
         'application/pdf': { 'url': 'sendDocument', 'type': 'document' },
     };
 
@@ -512,7 +512,7 @@ async function uploadFileToTelegram(context, fullId, metadata, fileExt, fileName
 
     // GIF ICO 等发送接口特殊处理
     if (fileType === 'image/gif' || fileType === 'image/webp' || fileExt === 'gif' || fileExt === 'webp') {
-        sendFunction = { 'url': 'sendAnimation', 'type': 'animation' };
+        sendFunction = { 'url': 'sendDocument', 'type': 'document' };
     } else if (fileType === 'image/svg+xml' || fileType === 'image/x-icon') {
         sendFunction = { 'url': 'sendDocument', 'type': 'document' };
     }
