@@ -1,1 +1,59 @@
-<!doctype html><html lang=""><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="/static/media/logo.png"><link rel="apple-touch-icon" href="/static/media/logo.png"><link rel="mask-icon" href="/static/media/logo.png" color="#f4b400"><meta name="description" content="Sanyue ImgHub - A modern file hosting platform"><meta name="keywords" content="Sanyue, ImgHub, file hosting, image hosting, cloud storage"><meta name="author" content="SanyueQi"><title>Sanyue ImgHub</title><script defer="defer" src="/js/chunk-vendors.82c104b1.js"></script><script defer="defer" src="/js/app.164ae756.js"></script><link href="/css/chunk-vendors.f9cd4701.css" rel="stylesheet"><link href="/css/app.75711fde.css" rel="stylesheet"></head><body><noscript><strong>We're sorry but sanyue_imghub doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id="app"></div></body></html>
+<!doctype html><html lang=""><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="icon" href="/static/media/logo.png"><link rel="apple-touch-icon" href="/static/media/logo.png"><link rel="mask-icon" href="/static/media/logo.png" color="#f4b400"><meta name="description" content="Sanyue ImgHub - A modern file hosting platform"><meta name="keywords" content="Sanyue, ImgHub, file hosting, image hosting, cloud storage"><meta name="author" content="SanyueQi"><title>Sanyue ImgHub</title><script defer="defer" src="/js/chunk-vendors.82c104b1.js"></script><script defer="defer" src="/js/app.164ae756.js"></script><link href="/css/chunk-vendors.f9cd4701.css" rel="stylesheet"><link href="/css/app.75711fde.css" rel="stylesheet"><style>
+#hello-overlay{position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(20,24,30,0.45);backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);cursor:pointer;touch-action:none;pointer-events:auto;transition:opacity 350ms ease,filter 350ms ease}
+#hello-overlay.is-fading{opacity:0;filter:blur(12px)}
+#hello-overlay img{width:min(80vw,640px);height:auto;display:block;user-select:none;pointer-events:none}
+</style></head><body><noscript><strong>We're sorry but sanyue_imghub doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><div id="app"></div>
+<div id="hello-overlay"><img src="/img/hello_ver2.svg" alt="hello"></div>
+<script>
+(function() {
+  var overlay = document.getElementById('hello-overlay');
+  if (!overlay) return;
+
+  var FADE_MS = 350;      // 平滑渐隐时长
+  var HOLD_MS = 3500;     // 自动结束前的停留时长（hello_ver2.svg 动画时长未核实，可按实际调整）
+  var BLOCK = ['pointerdown','pointerup','mousedown','mouseup','touchstart','touchend','click','keydown','keyup','wheel'];
+
+  var fading = false;
+  var removed = false;
+  var timer = null;
+  var fallback = null;
+
+  // 捕获阶段拦截：遮罩存在期间（含淡出过程）吞掉所有交互事件，防止穿透到下层按钮
+  function blocker(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!fading) fadeOut();
+  }
+
+  function setLock(on) {
+    BLOCK.forEach(function(t) {
+      if (on) window.addEventListener(t, blocker, { capture: true, passive: false });
+      else window.removeEventListener(t, blocker, true);
+    });
+  }
+
+  function finish() {
+    if (removed) return;
+    removed = true;
+    clearTimeout(fallback);
+    overlay.remove();
+    // 遮罩 DOM 移除后，短暂保留拦截以吃掉迟到的 click，然后才释放下层触控
+    setTimeout(function() { setLock(false); }, 350);
+  }
+
+  function fadeOut() {
+    if (fading) return;
+    fading = true;
+    clearTimeout(timer);
+    overlay.addEventListener('transitionend', function(ev) {
+      if (ev.target === overlay && ev.propertyName === 'opacity') finish();
+    });
+    overlay.classList.add('is-fading');
+    // 兜底：transitionend 未触发（如标签页后台）时仍按时移除
+    fallback = setTimeout(finish, FADE_MS + 50);
+  }
+
+  setLock(true);
+  timer = setTimeout(fadeOut, HOLD_MS);
+})();
+</script></body></html>
